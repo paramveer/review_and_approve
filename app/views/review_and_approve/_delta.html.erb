@@ -1,0 +1,26 @@
+<% published ||= {} %>
+<% diff_keys = published.diff(current).keys %>
+<div class="review_and_approve">
+<% if diff_keys.count > 0 %>
+  <table>
+    <thead>
+      <tr>
+        <th scope="col" class="rounded-company">Field Name</th>
+        <th scope="col" class="rounded-q1">Published Value</th>
+        <th scope="col" class="rounded-q4">Current Value</th>
+      </tr>
+    </thead>
+    <% published.diff(current).keys.each do |key| %>
+    <tbody>
+      <tr>
+        <td><%= key %></td>
+        <td><%= published[key] || "<BLANK>" %></td>
+        <td><%= current[key] || "<BLANK>" %></td>
+      </tr>
+    </tbody>
+    <% end %>
+  </table>
+<% else %>
+  Latest version is published
+<% end %>
+</div>
