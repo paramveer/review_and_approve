@@ -12,7 +12,7 @@ Gem::Specification.new do |gem|
   gem.summary       = %q{Adds Review and Approval functionality for content sites.}
   gem.homepage      = ""
 
-  gem.files         = Dir["{app,lib}/**/*"] + ["Rakefile", "README.rdoc"]
+  gem.files         = Dir["{app,lib}/**/*"] + ["Rakefile", "README.md"]
                       #`git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
