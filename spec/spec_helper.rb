@@ -1,1 +1,7 @@
 require 'review_and_approve'
+require 'supermodel'
+require 'mocha/api'
+require 'rails'
+require 'cancan/ability'
+require 'cancan/rule'
+require 'debugger'

@@ -19,5 +19,10 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
 
   gem.add_development_dependency "rspec", "~>2.0"
-  gem.add_development_dependency "rake", "0.8.7"
+  gem.add_development_dependency "rake"#, "0.8.7"
+  gem.add_runtime_dependency "supermodel" 
+  gem.add_development_dependency "mocha"
+  gem.add_runtime_dependency "rails"
+  gem.add_runtime_dependency "cancan"
+  gem.add_development_dependency "debugger"
 end

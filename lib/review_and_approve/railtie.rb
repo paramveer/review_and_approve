@@ -5,5 +5,11 @@ module ReviewAndApprove
         extend ModelAdditions
       end
     end
+
+    initializer "review_and_approve.contoller_additions" do
+      ActiveSupport.on_load(:action_controller) do
+        extend ReviewAndApprove::ControllerAdditions # ActiveSupport::Concern
+      end
+    end
   end
 end
