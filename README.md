@@ -42,6 +42,9 @@ review_and_approve :by => [:as_json, :to_json]
 
 review_and_approve :field => :published 
   # Override the field used to track whether we are publishing or not.
+
+review_and_approve :cache_key => Proc.new{|object, method_name| #Generate key string}
+  # Override the way the gem creates a key for reading/writing to the cache
 ```
 
 ### Showing differences from published version

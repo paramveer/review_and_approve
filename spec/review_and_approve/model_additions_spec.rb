@@ -2,7 +2,7 @@ require 'spec_helper'
 
 class AR < SuperModel::Base
   extend ReviewAndApprove::ModelAdditions
-  review_and_approve :field => :hello, :by => [:one, :two]
+  review_and_approve :field => :hello, :by => [:one, :two], :cache_key => Proc.new{|o,m| "RaA_key_#{o.class.name}_#{o.id}_#{m}"}
   attr_accessor :one, :two
 end
 
@@ -29,8 +29,8 @@ describe ReviewAndApprove::ModelAdditions do
         a.stubs(:id).returns 1
 
         object = mock('object')
-        object.expects(:read).with("ReviewAndApprove_AR_1_as_json").returns 1
-        object.expects(:read).with("ReviewAndApprove_AR_1_to_json").returns 2
+        object.expects(:read).with("RaA_key_AR_1_as_json").returns 1
+        object.expects(:read).with("RaA_key_AR_1_to_json").returns 2
         Rails.stubs(:cache).returns object
         
         a.published_version(:as_json).should==1
@@ -50,9 +50,9 @@ describe ReviewAndApprove::ModelAdditions do
           
 
           object = mock 'object'
-          object.expects(:write).with("ReviewAndApprove_AR_1_one", nil).returns 1
-          object.expects(:write).with("ReviewAndApprove_AR_1_two", nil).returns 2
-          object.expects(:write).with("ReviewAndApprove_AR_1_three", nil).never
+          object.expects(:write).with("RaA_key_AR_1_one", nil).returns 1
+          object.expects(:write).with("RaA_key_AR_1_two", nil).returns 2
+          object.expects(:write).with("RaA_key_AR_1_three", nil).never
           Rails.stubs(:cache).returns object
 
           a.save
@@ -69,8 +69,8 @@ describe ReviewAndApprove::ModelAdditions do
           
 
           object = mock 'object'
-          object.expects(:write).with("ReviewAndApprove_AR_1_one", nil).never
-          object.expects(:write).with("ReviewAndApprove_AR_1_two", nil).never
+          object.expects(:write).with("RaA_key_AR_1_one", nil).never
+          object.expects(:write).with("RaA_key_AR_1_two", nil).never
 
           Rails.stubs(:cache).returns object
           a.save
@@ -88,8 +88,8 @@ describe ReviewAndApprove::ModelAdditions do
           Thread.current[:reviewAndApprove_current_ability] = abl
 
           object = mock 'object'
-          object.expects(:write).with("ReviewAndApprove_AR_1_one", nil).raises
-          object.expects(:write).with("ReviewAndApprove_AR_1_two", nil).raises
+          object.expects(:write).with("RaA_key_AR_1_one", nil).raises
+          object.expects(:write).with("RaA_key_AR_1_two", nil).raises
           Rails.stubs(:cache).returns object
 
           a.valid?.should be_false

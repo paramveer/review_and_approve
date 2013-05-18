@@ -4,8 +4,9 @@ module ReviewAndApprove
       # Extracting options:
       # 1. methods to cache - option :by, default value [:as_json]
       # 2. attribute to track as published - option :field, default value :publish
-      methods = [:as_json]
       field = :publish
+      methods = [:as_json]
+      key_proc = Proc.new{|obj, method| "ReviewAndApprove_#{obj.class.name}_#{obj.id}_#{method}"}
       args.each do |arg|
         if arg.is_a? Hash
           if !arg[:by].nil?
@@ -13,6 +14,9 @@ module ReviewAndApprove
           end
           if !arg[:field].nil?
             field = arg[:field]
+          end
+          if !arg[:cache_key].nil?
+            key_proc = arg[:cache_key]
           end
         end
       end
@@ -26,7 +30,7 @@ module ReviewAndApprove
         if published and (published==true or published=="true" or self.send(field).to_i>0 rescue false) #in case the field gets set to "0" and "1"
           methods.each do |method|
             # Refresh all caches
-            Rails.cache.write("ReviewAndApprove_#{self.class.name}_#{self.id}_#{method}", self.send(method))
+            Rails.cache.write(key_proc.call(self, method), self.send(method))
           end
         end
 
@@ -34,7 +38,7 @@ module ReviewAndApprove
       end
 
       send(:define_method, :published_version) do |method_name|
-        Rails.cache.read("ReviewAndApprove_#{self.class.name}_#{self.id}_#{method_name}")
+        Rails.cache.read(key_proc.call(self, method_name))
       end
 
       send(:define_method, :mass_assignment_authorizer) do |role = :default|

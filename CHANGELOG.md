@@ -1,3 +1,6 @@
+## v0.0.2
+** Added ability to customize the cache key
+
 ## v0.0.1
 
 * First usable release
