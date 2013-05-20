@@ -1,5 +1,9 @@
+## v0.0.4
+** bug fixes to create_caches and handling missing caches in the db
+
 ## v0.0.3
 ** Moved saving to database instead of saving to cache
+** Added a rake task to set up initial cache data
 
 ## v0.0.2
 ** Added ability to customize the cache key

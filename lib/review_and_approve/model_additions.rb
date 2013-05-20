@@ -47,7 +47,7 @@ module ReviewAndApprove
       end
 
       send(:define_method, :published_version) do |method_name|
-        CacheRecord.find_by_key(key_proc.call(self, method_name)).cache_data
+        CacheRecord.find_by_key(key_proc.call(self, method_name)).cache_data rescue nil
       end
 
       send(:define_method, :mass_assignment_authorizer) do |role = :default|

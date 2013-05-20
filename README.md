@@ -16,6 +16,11 @@ Or install it yourself as:
 
     $ gem install review_and_approve
 
+To install the database schema
+
+    $ rails g review_and_approve:install
+    $ bundle exec rake db:migrate
+
 ## Usage
 
 ### Setup
@@ -27,6 +32,10 @@ class Product < ActiveRecord::Base
   attr_accessible :field1, :field2.. #Make sure attr_accessible is defined properly
 end
 ```
+
+To mark existing data as published:
+
+    $ bundle exec rake review_and_approve:create_caches
 
 Use Cancan or other authorization mechanism to define a custom ability to 'publish' the records
 Make sure your controller has access to current_ability method and it returns true or false on can? :publish, @product
