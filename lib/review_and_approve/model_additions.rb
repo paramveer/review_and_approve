@@ -24,13 +24,22 @@ module ReviewAndApprove
       # define the field as an attribute on the model
       attr_accessor field
 
-      after_save do
-        published = self.send(field)
+      # identifier on the class that it has been set up with review_and_approve
+      send(:define_singleton_method, :_using_rev_app?) do
+        true
+      end
+
+      after_save :review_and_approve_after_save_callback
+
+      send(:define_method, :review_and_approve_after_save_callback) do |publish = false|
+        published = self.send(field) || publish
         #If we are publishing the record
         if published and (published==true or published=="true" or self.send(field).to_i>0 rescue false) #in case the field gets set to "0" and "1"
           methods.each do |method|
             # Refresh all caches
-            Rails.cache.write(key_proc.call(self, method), self.send(method))
+            CacheRecord.find_or_initialize_by_key(key_proc.call(self, method)).tap do |cr|
+              cr.cache_data =  self.send(method)
+            end.save
           end
         end
 
@@ -38,7 +47,7 @@ module ReviewAndApprove
       end
 
       send(:define_method, :published_version) do |method_name|
-        Rails.cache.read(key_proc.call(self, method_name))
+        CacheRecord.find_by_key(key_proc.call(self, method_name)).cache_data
       end
 
       send(:define_method, :mass_assignment_authorizer) do |role = :default|

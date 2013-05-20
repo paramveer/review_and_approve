@@ -1,3 +1,6 @@
+## v0.0.3
+** Moved saving to database instead of saving to cache
+
 ## v0.0.2
 ** Added ability to customize the cache key
 

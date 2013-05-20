@@ -24,14 +24,12 @@ describe ReviewAndApprove::ModelAdditions do
     end
 
     describe "#published_version" do
-      it "reads method values from cache" do
+      it "reads method values from db" do
         a = AR.new
         a.stubs(:id).returns 1
 
-        object = mock('object')
-        object.expects(:read).with("RaA_key_AR_1_as_json").returns 1
-        object.expects(:read).with("RaA_key_AR_1_to_json").returns 2
-        Rails.stubs(:cache).returns object
+        CacheRecord.expects(:find_by_key).with("RaA_key_AR_1_as_json").returns 1
+        CacheRecord.expects(:find_by_key).with("RaA_key_AR_1_to_json").returns 2
         
         a.published_version(:as_json).should==1
         a.published_version(:to_json).should==2
@@ -40,7 +38,7 @@ describe ReviewAndApprove::ModelAdditions do
 
     describe "after_save behavior for able users" do
       context "if object.publish field is true" do
-        it "writes all setup methods to cache" do
+        it "writes all setup methods to db" do
           a = AR.new
           a.stubs(:id).returns 1
           a.hello = true
@@ -48,18 +46,16 @@ describe ReviewAndApprove::ModelAdditions do
           abl.can(:publish, a)
           Thread.current[:reviewAndApprove_current_ability] = abl
           
-
-          object = mock 'object'
-          object.expects(:write).with("RaA_key_AR_1_one", nil).returns 1
-          object.expects(:write).with("RaA_key_AR_1_two", nil).returns 2
-          object.expects(:write).with("RaA_key_AR_1_three", nil).never
-          Rails.stubs(:cache).returns object
-
+          object = mock 'CacheRecord'
+          object.stubs(:cache_data=).returns true
+          CacheRecord.stubs(:find_or_initialize_by_key).returns(object)
+          object.expects(:save).at_least(2).returns true
+          
           a.save
         end
       end
       context "if object.publish field is false" do
-        it "does not write anything to cache" do
+        it "does not write anything to db" do
           a = AR.new
           a.stubs(:id).returns 1
           a.hello = false
@@ -67,12 +63,8 @@ describe ReviewAndApprove::ModelAdditions do
           abl.can(:publish, a)
           Thread.current[:reviewAndApprove_current_ability] = abl
           
+          CacheRecord.any_instance.expects(:save).never
 
-          object = mock 'object'
-          object.expects(:write).with("RaA_key_AR_1_one", nil).never
-          object.expects(:write).with("RaA_key_AR_1_two", nil).never
-
-          Rails.stubs(:cache).returns object
           a.save
         end
       end
@@ -87,11 +79,9 @@ describe ReviewAndApprove::ModelAdditions do
           abl.cannot(:publish, a)
           Thread.current[:reviewAndApprove_current_ability] = abl
 
-          object = mock 'object'
-          object.expects(:write).with("RaA_key_AR_1_one", nil).raises
-          object.expects(:write).with("RaA_key_AR_1_two", nil).raises
-          Rails.stubs(:cache).returns object
-
+          CacheRecord.expects(:find_or_initialize_by_key).with("RaA_key_AR_1_one", nil).raises
+          CacheRecord.expects(:find_or_initialize_by_key).with("RaA_key_AR_1_two", nil).raises
+          
           a.valid?.should be_false
           lambda{ a.save }.should_not raise_exception
 

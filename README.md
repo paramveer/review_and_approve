@@ -61,13 +61,12 @@ A method called `published_version` is defined on the model that provides access
   # Given two hashes (before/after), this will render the changes in a table
 
   #styling the differences
-  Check out delta.css in the gem and override the styles in your application
+  Include review_and_approve/application in your application.css or
+  check out delta.css in the gem and override the styles in your application
 ```
 
 ## Limitations
 * only certified on Rails 3.1, ruby 1.9.2
-* Will use Rails.cache to store the output of methods provided to review_and_approve. We currently assume that the cache has infinite space -i.e. the cached value is never lost
- - possibly use the database in future for storing cached values
 * Currently depends on the application to call attr_accessible
 
 

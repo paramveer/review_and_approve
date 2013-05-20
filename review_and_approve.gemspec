@@ -12,7 +12,7 @@ Gem::Specification.new do |gem|
   gem.summary       = %q{Adds Review and Approval functionality for content sites.}
   gem.homepage      = ""
 
-  gem.files         = Dir["{app,lib}/**/*"] + ["Rakefile", "README.md"]
+  gem.files         = Dir["{app,lib, tasks}/**/*"] + ["Rakefile", "README.md"]
                       #`git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
@@ -20,9 +20,12 @@ Gem::Specification.new do |gem|
 
   gem.add_development_dependency "rspec", "~>2.0"
   gem.add_development_dependency "rake"#, "0.8.7"
-  gem.add_runtime_dependency "supermodel" 
+  gem.add_development_dependency "supermodel" 
   gem.add_development_dependency "mocha"
+  gem.add_development_dependency "debugger"
+
+
   gem.add_runtime_dependency "rails"
   gem.add_runtime_dependency "cancan"
-  gem.add_development_dependency "debugger"
+  gem.add_runtime_dependency "activerecord"
 end
