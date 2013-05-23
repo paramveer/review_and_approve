@@ -1,10 +1,18 @@
 desc 'Create caches for existing data'
 namespace :review_and_approve do
-  task :create_caches => :environment do
+  task :create_caches, [:arg1, :arg2, :arg3, :arg4, :arg5] => :environment do |t, args|
     puts "In review_and_approve:create_caches"
-    ActiveRecord::Base.subclasses.select{|model| 
-      model._using_rev_app? rescue false
-      }.each do |model|
+    
+    models = []
+    if args.count > 0
+      models = args.map{|k,v| v.constantize rescue nil}.compact
+    else
+      models = ActiveRecord::Base.subclasses.select{|model| 
+        model._using_rev_app? rescue false
+      }
+    end
+
+    models.each do |model|
       
       puts "Processing #{model.name}"
       model.find_each do |obj|

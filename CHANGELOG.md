@@ -1,3 +1,7 @@
+## v0.0.5
+** Added ability to run publish for only a few classes
+** Added check for "on" value in the published field as set by backbone.js
+
 ## v0.0.4
 ** bug fixes to create_caches and handling missing caches in the db
 

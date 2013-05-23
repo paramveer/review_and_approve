@@ -10,15 +10,20 @@
         <th scope="col" class="rounded-q4">Current Value</th>
       </tr>
     </thead>
-    <% diff_keys.each do |key| %>
+
     <tbody>
-      <tr>
-        <td><%= key %></td>
-        <td><%= published[key] || "<BLANK>" %></td>
-        <td><%= current[key] || "<BLANK>" %></td>
-      </tr>
+      <% diff_keys.each do |key| %>
+        <tr>
+          <td><%= key rescue "" %></td>
+          <%# if !published.is_a? Hash and !published.is_a? Array %>
+            <td><%= published || "<BLANK>" %></td>
+            <td><%= current || "<BLANK>" %></td>
+          <%# end %>
+        </tr>
+        <%#= render :partial => 'review_and_approve/line_item', :locals => {:published => published[key], :current => current[key], :key => key, :depth => 0} %>
+      <% end %>
     </tbody>
-    <% end %>
+
   </table>
 <% else %>
   Latest version is published

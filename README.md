@@ -35,7 +35,10 @@ end
 
 To mark existing data as published:
 
-    $ bundle exec rake review_and_approve:create_caches
+    $ bundle exec rake review_and_approve:create_caches 
+      # => Marks all records of all classes using review_and_approve as published
+    $ bundle exec rake review_and_approve:create_caches[Product, AnotherClass]
+      # => Only mark the records for listed classes
 
 Use Cancan or other authorization mechanism to define a custom ability to 'publish' the records
 Make sure your controller has access to current_ability method and it returns true or false on can? :publish, @product
@@ -74,9 +77,9 @@ A method called `published_version` is defined on the model that provides access
   check out delta.css in the gem and override the styles in your application
 ```
 
-## Limitations
+## Limitations and Warnings
 * only certified on Rails 3.1, ruby 1.9.2
-* Currently depends on the application to call attr_accessible
+* Currently depends on the application to set up attr_accessible properly, else all mass-assignment would be disabled (You *should* have attr_accessible set up on rails 3.x anyway)
 
 
 ## Contributing
@@ -84,5 +87,6 @@ A method called `published_version` is defined on the model that provides access
 1. Fork it
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+4. Run all tests to confirm they pass (`bundle exec rake`)
+5. Push to the branch (`git push origin my-new-feature`)
+6. Create new Pull Request

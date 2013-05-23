@@ -34,12 +34,12 @@ module ReviewAndApprove
       send(:define_method, :review_and_approve_after_save_callback) do |publish = false|
         published = self.send(field) || publish
         #If we are publishing the record
-        if published and (published==true or published=="true" or self.send(field).to_i>0 rescue false) #in case the field gets set to "0" and "1"
+        if published and (published==true or published=="true" or published=="on" or self.send(field).to_i>0 rescue false) #in case the field gets set to "0" and "1"
           methods.each do |method|
             # Refresh all caches
-            CacheRecord.find_or_initialize_by_key(key_proc.call(self, method)).tap do |cr|
-              cr.cache_data =  self.send(method)
-            end.save
+            cr = CacheRecord.find_or_initialize_by_key(key_proc.call(self, method))
+            cr.cache_data =  self.send(method)
+            cr.save
           end
         end
 
@@ -58,7 +58,7 @@ module ReviewAndApprove
       validates_each field do |record, attr, value|
         able = Thread.current[:reviewAndApprove_current_ability].try(:can?, :publish, record)
         # if user can not publish the record, create an error.
-        if !able and value and (value==true or value=="true" or value.to_i>0 rescue false)
+        if !able and value and (value==true or value=="true" or value=="on" or value.to_i>0 rescue false)
           record.errors[attr] << "can not be marked as true by this user"
         end
       end

@@ -28,11 +28,11 @@ describe ReviewAndApprove::ModelAdditions do
         a = AR.new
         a.stubs(:id).returns 1
 
-        CacheRecord.expects(:find_by_key).with("RaA_key_AR_1_as_json").returns 1
-        CacheRecord.expects(:find_by_key).with("RaA_key_AR_1_to_json").returns 2
+        obj = mock 'object'
+        obj.expects(:cache_data).returns 1
+        CacheRecord.expects(:find_by_key).with("RaA_key_AR_1_as_json").returns obj
         
         a.published_version(:as_json).should==1
-        a.published_version(:to_json).should==2
       end
     end
 

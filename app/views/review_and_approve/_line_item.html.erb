@@ -1,0 +1,30 @@
+<% puts "in line item with" %>
+<% puts "published:#{published rescue ""}" %>
+<% puts "current:#{current rescue ""}" %>
+<% puts "key:#{key rescue ""}" %>
+<% current ||= {} %>
+<tr>
+  <% (0..depth).each do %>
+    <td></td>
+  <% end %>
+  <td><%= key rescue "" %></td>
+  <% if !published.is_a? Hash and !published.is_a? Array %>
+    <td><%= published || "<BLANK>" %></td>
+    <td><%= current || "<BLANK>" %></td>
+  <% end %>
+</tr>
+<% if published.is_a? Array %>
+  <% published.each do |item| %>
+    <% if current. %>
+      <% pub = (published.include? item) ? item : nil %>
+      <% cur = (current.include? item) ? item : nil %>
+      <%= render :partial => 'review_and_approve/line_item', 
+        :locals => {:depth => depth+1, :published => pub, :current => cur} %>
+    <% end %>
+  <% end %>
+<% end %>
+<% if published.is_a? Hash %>
+  <% published.diff(current).keys.each do |key| %>
+    <%= render :partial => 'review_and_approve/line_item', :locals => {:published => published[key], :current => current[key], :key => key, :depth => depth+1} %>
+  <% end %>
+<% end %> 
