@@ -36,19 +36,31 @@ module ReviewAndApprove
         #If we are publishing the record
         if published and (published==true or published=="true" or published=="on" or self.send(field).to_i>0 rescue false) #in case the field gets set to "0" and "1"
           methods.each do |method|
-            # Refresh all caches
-            cr = CacheRecord.find_or_initialize_by_key(key_proc.call(self, method))
+            # Refresh published cache
+            cr = CacheRecord.find_or_initialize_by_key("#{key_proc.call(self, method)}_published_version")
             cr.cache_data =  self.send(method)
             cr.save
           end
+        end
+
+        methods.each do |method|
+          #Refresh current value cache
+          cr = CacheRecord.find_or_initialize_by_key("#{key_proc.call(self, method)}_current_version")
+          cr.cache_data = self.send(method)
+          cr.save
         end
 
         true
       end
 
       send(:define_method, :published_version) do |method_name|
-        CacheRecord.find_by_key(key_proc.call(self, method_name)).cache_data rescue nil
+        CacheRecord.find_by_key("#{key_proc.call(self, method_name)}_published_version").cache_data rescue nil
       end
+
+      send(:define_method, :current_version) do |method_name|
+        CacheRecord.find_by_key("#{key_proc.call(self, method_name)}_current_version").cache_data rescue nil
+      end
+
 
       send(:define_method, :mass_assignment_authorizer) do |role = :default|
         # force add the :publish attribute into attr_accessible

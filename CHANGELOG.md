@@ -1,3 +1,6 @@
+## v0.0.6
+** Added ability to save the current_version to the database as well. Both published_version and current_version now fetch from the database
+
 ## v0.0.5
 ** Added ability to run publish for only a few classes
 ** Added check for "on" value in the published field as set by backbone.js

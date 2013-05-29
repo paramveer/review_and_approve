@@ -1,5 +1,6 @@
 <% published ||= {} %>
-<% diff_keys = published.diff(current).keys %>
+<% diff = ReviewAndApprove::HashDiff.diff(published,current) %>
+<% diff_keys = diff.keys %>
 <div class="review_and_approve">
 <% if diff_keys.count > 0 %>
   <table>
@@ -13,14 +14,7 @@
 
     <tbody>
       <% diff_keys.each do |key| %>
-        <tr>
-          <td><%= key rescue "" %></td>
-          <%# if !published.is_a? Hash and !published.is_a? Array %>
-            <td><%= published || "<BLANK>" %></td>
-            <td><%= current || "<BLANK>" %></td>
-          <%# end %>
-        </tr>
-        <%#= render :partial => 'review_and_approve/line_item', :locals => {:published => published[key], :current => current[key], :key => key, :depth => 0} %>
+        <%= render :partial => 'review_and_approve/line_item', :locals => {:key => key, :diff_val => diff[key], :depth => -1} %>
       <% end %>
     </tbody>
 

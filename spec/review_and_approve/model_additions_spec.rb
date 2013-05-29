@@ -19,8 +19,11 @@ describe ReviewAndApprove::ModelAdditions do
     end
 
     it "should set up published_version method" do
-      a = AR.new
-      a.class.method_defined?(:published_version).should be_true
+      AR.method_defined?(:published_version).should be_true
+    end
+
+    it "should set up current_version method" do
+      AR.method_defined?(:current_version).should be_true
     end
 
     describe "#published_version" do
@@ -30,9 +33,22 @@ describe ReviewAndApprove::ModelAdditions do
 
         obj = mock 'object'
         obj.expects(:cache_data).returns 1
-        CacheRecord.expects(:find_by_key).with("RaA_key_AR_1_as_json").returns obj
+        CacheRecord.expects(:find_by_key).with("RaA_key_AR_1_as_json_published_version").returns obj
         
         a.published_version(:as_json).should==1
+      end
+    end
+
+    describe "#current_version" do
+      it "reads method values from db" do
+        a = AR.new
+        a.stubs(:id).returns 1
+
+        obj = mock 'object'
+        obj.expects(:cache_data).returns 1
+        CacheRecord.expects(:find_by_key).with("RaA_key_AR_1_as_json_current_version").returns obj
+
+        a.current_version(:as_json).should == 1
       end
     end
 
@@ -56,6 +72,8 @@ describe ReviewAndApprove::ModelAdditions do
       end
       context "if object.publish field is false" do
         it "does not write anything to db" do
+          # This shoudl fail with the new functionality. 
+          # Should have required an update to accommodate current_version saves
           a = AR.new
           a.stubs(:id).returns 1
           a.hello = false
@@ -63,9 +81,9 @@ describe ReviewAndApprove::ModelAdditions do
           abl.can(:publish, a)
           Thread.current[:reviewAndApprove_current_ability] = abl
           
-          CacheRecord.any_instance.expects(:save).never
+          CacheRecord.any_instance.expects(:save).raises
 
-          a.save
+          lambda { a.save }.should_not raise_exception
         end
       end
     end
@@ -79,8 +97,8 @@ describe ReviewAndApprove::ModelAdditions do
           abl.cannot(:publish, a)
           Thread.current[:reviewAndApprove_current_ability] = abl
 
-          CacheRecord.expects(:find_or_initialize_by_key).with("RaA_key_AR_1_one", nil).raises
-          CacheRecord.expects(:find_or_initialize_by_key).with("RaA_key_AR_1_two", nil).raises
+          CacheRecord.expects(:find_or_initialize_by_key).with("RaA_key_AR_1_one_published_version", nil).raises
+          CacheRecord.expects(:find_or_initialize_by_key).with("RaA_key_AR_1_two_published_version", nil).raises
           
           a.valid?.should be_false
           lambda{ a.save }.should_not raise_exception

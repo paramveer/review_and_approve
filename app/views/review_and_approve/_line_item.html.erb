@@ -1,30 +1,19 @@
-<% puts "in line item with" %>
-<% puts "published:#{published rescue ""}" %>
-<% puts "current:#{current rescue ""}" %>
-<% puts "key:#{key rescue ""}" %>
-<% current ||= {} %>
+
 <tr>
   <% (0..depth).each do %>
     <td></td>
   <% end %>
   <td><%= key rescue "" %></td>
-  <% if !published.is_a? Hash and !published.is_a? Array %>
-    <td><%= published || "<BLANK>" %></td>
-    <td><%= current || "<BLANK>" %></td>
+  <% if diff_val.is_a? Array  %>
+    <td><%= diff_val[0] || "<BLANK>" %></td>
+    <td><%= diff_val[1] || "<BLANK>" %></td>
   <% end %>
 </tr>
-<% if published.is_a? Array %>
-  <% published.each do |item| %>
-    <% if current. %>
-      <% pub = (published.include? item) ? item : nil %>
-      <% cur = (current.include? item) ? item : nil %>
-      <%= render :partial => 'review_and_approve/line_item', 
-        :locals => {:depth => depth+1, :published => pub, :current => cur} %>
-    <% end %>
+<% if diff_val.is_a? Hash %>
+  <% diff_val.keys.each do |key| %>
+    <%= render :partial => 'review_and_approve/line_item', :locals => {:key => key, :diff_val => diff_key[key], :depth => depth+1} %>
   <% end %>
+<% elsif !diff_val.is_a? Array or diff_val.length>2 %>
+  <% debugger %>
+  <% raise Exception.new %>
 <% end %>
-<% if published.is_a? Hash %>
-  <% published.diff(current).keys.each do |key| %>
-    <%= render :partial => 'review_and_approve/line_item', :locals => {:published => published[key], :current => current[key], :key => key, :depth => depth+1} %>
-  <% end %>
-<% end %> 

@@ -60,16 +60,19 @@ review_and_approve :cache_key => Proc.new{|object, method_name| #Generate key st
 ```
 
 ### Showing differences from published version
-A method called `published_version` is defined on the model that provides access to cached methods as of the last published version. For example:
+Methods called `published_version` and `current_version` are defined on the model that provides access to cached methods as of the last published or current versions. For example:
 
 ```ruby
   @product.published_version(:as_json)   
   # => returns the as_json hash from the last time the product was published
 
+  @product.current_version(:as_json)
+  # => returns the as_json hash for the current iteration. It is advisable to use this to avoid getting bogged down by changes to date/time and other fields because of just saving and retrieving from your cache(i.e. database)
+
   # Rendering the differences
   render :partial => "review_and_approve/delta", 
     :locals => {:published => @product.published_version(:as_json),
-                 :current => @product.as_json}
+                 :current => @product.current_version(:as_json)}
   # Given two hashes (before/after), this will render the changes in a table
 
   #styling the differences
