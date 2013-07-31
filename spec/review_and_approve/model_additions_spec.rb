@@ -52,9 +52,23 @@ describe ReviewAndApprove::ModelAdditions do
       end
     end
 
+    describe "#published?" do
+      it "reads published value from the db" do
+        a = AR.new
+        ActiveRecord::Relation.any_instance.expects(:count).returns 1
+        a.published?.should be_true
+      end
+
+      it "returns false if there is no data in the db" do
+        a = AR.new
+        ActiveRecord::Relation.any_instance.expects(:count).returns 0
+        a.published?.should be_false
+      end
+    end
+
     describe "after_save behavior for able users" do
       context "if object.publish field is true" do
-        it "writes all setup methods to db" do
+        it "writes all setup methods to db for both published and current_version" do
           a = AR.new
           a.stubs(:id).returns 1
           a.hello = true
@@ -65,30 +79,37 @@ describe ReviewAndApprove::ModelAdditions do
           object = mock 'CacheRecord'
           object.stubs(:cache_data=).returns true
           CacheRecord.stubs(:find_or_initialize_by_key).returns(object)
-          object.expects(:save).at_least(2).returns true
+          object.expects(:save).times(4).returns true
           
           a.save
         end
-      end
-      context "if object.publish field is false" do
-        it "does not write anything to db" do
-          # This shoudl fail with the new functionality. 
-          # Should have required an update to accommodate current_version saves
-          a = AR.new
-          a.stubs(:id).returns 1
-          a.hello = false
-          abl = Ability.new
-          abl.can(:publish, a)
-          Thread.current[:reviewAndApprove_current_ability] = abl
-          
-          CacheRecord.any_instance.expects(:save).raises
+        context "if object.publish field is false" do
+          it "only writes current_versions to db" do
+            # This shoudl fail with the new functionality. 
+            # Should have required an update to accommodate current_version saves
+            a = AR.new
+            a.stubs(:id).returns 1
+            a.hello = false
+            abl = Ability.new
+            abl.can(:publish, a)
+            Thread.current[:reviewAndApprove_current_ability] = abl
 
-          lambda { a.save }.should_not raise_exception
+            obj = mock 'object'
+            CacheRecord.stubs(:find_or_initialize_by_key).returns(obj)
+            
+            obj.stubs(:cache_data=).returns true
+            obj.expects(:save).times(2).returns true
+            
+            lambda { a.save }.should_not raise_exception
+          end
         end
+      
       end
+
     end
     describe "for users that are not allowed to publish record" do
       context "if publish field set to true before save" do
+        # Test case crashing without line number. need to investigate
         it "forces save to return false" do
           a = AR.new
           a.stubs(:id).returns 1
@@ -97,8 +118,7 @@ describe ReviewAndApprove::ModelAdditions do
           abl.cannot(:publish, a)
           Thread.current[:reviewAndApprove_current_ability] = abl
 
-          CacheRecord.expects(:find_or_initialize_by_key).with("RaA_key_AR_1_one_published_version", nil).raises
-          CacheRecord.expects(:find_or_initialize_by_key).with("RaA_key_AR_1_two_published_version", nil).raises
+          CacheRecord.expects(:find_or_initialize_by_key).raises
           
           a.valid?.should be_false
           lambda{ a.save }.should_not raise_exception

@@ -61,10 +61,14 @@ module ReviewAndApprove
         CacheRecord.find_by_key("#{key_proc.call(self, method_name)}_current_version").cache_data rescue nil
       end
 
-
       send(:define_method, :mass_assignment_authorizer) do |role = :default|
         # force add the :publish attribute into attr_accessible
         super(role) + [field]
+      end
+
+      # Check if a record has been published before.
+      send(:define_method, :published?) do
+        CacheRecord.where("key = '#{key_proc.call(self, methods.first)}_published_version'").count>0
       end
 
       validates_each field do |record, attr, value|

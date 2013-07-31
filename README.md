@@ -33,6 +33,14 @@ class Product < ActiveRecord::Base
 end
 ```
 
+In your form.html.erb 
+```ruby
+  <div class="field">
+    <%= f.check_box :publish %>
+    <%= f.label :publish %>
+  </div>
+```
+
 To mark existing data as published:
 
     $ bundle exec rake review_and_approve:create_caches 

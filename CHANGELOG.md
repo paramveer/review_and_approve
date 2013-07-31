@@ -1,3 +1,6 @@
+## v0.0.8
+** Added ability to check if a record has ever been published
+
 ## v0.0.6
 ** Added ability to save the current_version to the database as well. Both published_version and current_version now fetch from the database
 
